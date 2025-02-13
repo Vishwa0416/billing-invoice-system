@@ -13,10 +13,13 @@
         <form id="invoiceForm">
             <input type="text" id="customerName" placeholder="Customer Name" required>
             <input type="number" id="totalAmount" placeholder="Total Amount" required>
+         
+            <input type="date" id="dueDate" placeholder="Due Date" required> <!-- ✅ Required -->
             <button type="submit">Generate Invoice</button>
         </form>
+        
         <div id="invoiceList"></div>
     </div>
-    <script src="script.js"></script>
+    <script src="./script.js"></script>
 </body>
 </html>
