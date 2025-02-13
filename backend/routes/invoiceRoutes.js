@@ -6,25 +6,47 @@ const jsPDF = require("jspdf").jsPDF;
 
 const router = express.Router();
 
-// Create an invoice
+
+
+/**
+ * @route POST /api/invoices/create
+ * @desc Create a new invoice and generate a PDF
+ */
+
 router.post("/create", async (req, res) => {
   try {
-    const { customerName, totalAmount, dueDate } = req.body; // ✅ Now includes dueDate
+    const { customerName, email, totalAmount, dueDate, status } = req.body;
 
-    if (!dueDate) {
-      return res.status(400).json({ error: "Due date is required" });
+    // Validate inputs
+    if (!customerName || !email || !totalAmount || !dueDate || !status) {
+      return res.status(400).json({ error: "All fields are required" });
     }
 
-    // Save to DB
-    const newInvoice = new Invoice({ customerName, totalAmount, dueDate });
+    // Validate email
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return res.status(400).json({ error: "Invalid email format" });
+    }
+
+    // Validate status
+    const validStatuses = ["Unpaid", "Paid"];
+    if (!validStatuses.includes(status)) {
+      return res.status(400).json({ error: "Invalid status" });
+    }
+
+    // Save invoice to DB
+    const newInvoice = new Invoice({ customerName, email, totalAmount, dueDate, status });
     await newInvoice.save();
 
     // Generate PDF
     const doc = new jsPDF();
     doc.text("Invoice", 10, 10);
     doc.text(`Customer: ${customerName}`, 10, 20);
-    doc.text(`Total Amount: $${totalAmount}`, 10, 30);
-    doc.text(`Due Date: ${dueDate}`, 10, 40);
+    doc.text(`Email: ${email}`, 10, 30);
+    doc.text(`Total Amount: $${totalAmount}`, 10, 40);
+    doc.text(`Due Date: ${dueDate}`, 10, 50);
+    doc.text(`Status: ${status}`, 10, 60);  // Include status in PDF
+    doc.text(`Created On: ${new Date().toLocaleDateString()}`, 10, 70);
+
     const pdfPath = `./public/invoices/invoice_${Date.now()}.pdf`;
     doc.save(pdfPath);
 
@@ -33,9 +55,11 @@ router.post("/create", async (req, res) => {
       pdfPath
     });
   } catch (err) {
+    console.error("Error creating invoice:", err);
     res.status(500).json({ error: err.message });
   }
 });
+
 
 
 // Fetch all invoices

@@ -5,11 +5,11 @@ body {
     background: linear-gradient(135deg, #ff7e5f, #feb47b);
     color: #fff;
     margin: 0;
-    padding: 0;
+    padding: 20px;
+    min-height: 100vh;
     display: flex;
     justify-content: center;
-    align-items: center;
-    height: 100vh;
+    align-items: flex-start;
 }
 
 .container {
@@ -20,6 +20,7 @@ body {
     width: 100%;
     max-width: 500px;
     text-align: center;
+    margin-top: 20px; 
 }
 
 h1 {
@@ -35,7 +36,7 @@ form {
     margin-bottom: 20px;
 }
 
-input {
+input, select {
     padding: 12px;
     margin: 10px;
     border-radius: 5px;
@@ -46,7 +47,7 @@ input {
     transition: all 0.3s ease;
 }
 
-input:focus {
+input:focus, select:focus {
     border-color: #ff7e5f;
     box-shadow: 0 0 5px rgba(255, 126, 95, 0.7);
 }

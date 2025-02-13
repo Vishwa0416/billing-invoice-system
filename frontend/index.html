@@ -10,16 +10,23 @@
 <body>
     <div class="container">
         <h1>Billing & Invoice System</h1>
+
+        <!-- Invoice Form -->
         <form id="invoiceForm">
             <input type="text" id="customerName" placeholder="Customer Name" required>
+            <input type="email" id="email" placeholder="Customer Email" required> 
             <input type="number" id="totalAmount" placeholder="Total Amount" required>
-         
-            <input type="date" id="dueDate" placeholder="Due Date" required> <!-- ✅ Required -->
+            <input type="date" id="dueDate" placeholder="Due Date" required>
+            
+            <select id="status" required>
+                <option value="Unpaid">Unpaid</option>
+                <option value="Paid">Paid</option>
+            </select>
             <button type="submit">Generate Invoice</button>
         </form>
-        
         <div id="invoiceList"></div>
     </div>
+
     <script src="./script.js"></script>
 </body>
 </html>

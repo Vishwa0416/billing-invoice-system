@@ -1,59 +1,63 @@
-// Import jsPDF
 const { jsPDF } = window.jspdf;
 
 document.getElementById("invoiceForm").addEventListener("submit", async function (e) {
     e.preventDefault();
 
     const customerName = document.getElementById("customerName").value;
+    const email = document.getElementById("email").value;
     const totalAmount = document.getElementById("totalAmount").value;
     const dueDate = document.getElementById("dueDate").value;
+    const status = document.getElementById("status").value; 
+
+    // Validate email
+    if (!validateEmail(email)) {
+        alert("Please enter a valid email address.");
+        return;
+    }
 
     // Submit data to the backend
     const response = await fetch("http://localhost:5000/api/invoices/create", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ customerName, totalAmount, dueDate }), 
+        body: JSON.stringify({ customerName, email, totalAmount, dueDate , status }),
     });
 
     const data = await response.json();
-    if (data.message === "Invoice created and PDF generated successfully!") {
-        alert("Invoice created!");
-        generateInvoicePDF(customerName, totalAmount, dueDate);
+    if (data.message) {
+        alert(data.message);
+        generateInvoicePDF(customerName, email, totalAmount, dueDate);
         loadInvoices();
     } else {
-        alert("Failed to create invoice.");
-        console.error(data.error);
+        alert("Failed to create invoice: " + data.error);
     }
 });
 
 // Generate PDF Invoice
-function generateInvoicePDF(customerName, totalAmount, dueDate) {
+function generateInvoicePDF(customerName, email, totalAmount, dueDate) {
     const doc = new jsPDF();
     doc.text("Invoice", 10, 10);
     doc.text(`Customer Name: ${customerName}`, 10, 20);
-    doc.text(`Total Amount: $${totalAmount}`, 10, 30);
-    doc.text(`Due Date: ${dueDate}`, 10, 40);
-    doc.text(`Date: ${new Date().toLocaleDateString()}`, 10, 50);
+    doc.text(`Email: ${email}`, 10, 30);
+    doc.text(`Total Amount: $${totalAmount}`, 10, 40);
+    doc.text(`Due Date: ${dueDate}`, 10, 50);
+    doc.text(`Invoice Date: ${new Date().toLocaleDateString()}`, 10, 60);
     doc.save(`Invoice_${customerName}.pdf`);
 }
 
-// Load invoices
+// Validate Email Address
+function validateEmail(email) {
+    const pattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return pattern.test(email);
+}
+
+// Load existing invoices
 async function loadInvoices() {
     const response = await fetch("http://localhost:5000/api/invoices");
     const invoices = await response.json();
     document.getElementById("invoiceList").innerHTML = invoices
-        .map(inv => `<p>${inv.customerName} - $${inv.totalAmount} - Status: ${inv.status}</p>`)
+        .map(inv => `<p>${inv.customerName} - ${inv.email} - $${inv.totalAmount} (Due: ${inv.dueDate})</p>`)
         .join("");
 }
 
-// Send payment reminders
-async function sendReminders() {
-    const response = await fetch("http://localhost:5000/api/invoices/send-reminders", {
-        method: "POST"
-    });
-    const result = await response.json();
-    alert(result.message);
-}
-
-// Load invoices on page load
+// Initial load
 loadInvoices();

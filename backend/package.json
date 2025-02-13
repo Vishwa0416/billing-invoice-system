@@ -13,6 +13,7 @@
     "express": "^4.21.2",
     "jspdf": "^2.5.2",
     "mongoose": "^6.13.8",
+    "node-cron": "^3.0.3",
     "nodemailer": "^6.10.0"
   }
 }
